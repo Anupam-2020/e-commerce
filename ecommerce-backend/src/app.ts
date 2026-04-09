@@ -4,6 +4,8 @@ import { connectDB } from './config/db'
 import authRoutes from './routes/authRoutes';
 import { errorHandler } from './middlewares/errormiddleware';
 import productRoutes from './routes/productRoutes';
+import cartRoutes from './routes/cartRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 dotenv.config();
 connectDB();
@@ -18,6 +20,8 @@ app.get('/', (req, resp) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use(errorHandler);
 
