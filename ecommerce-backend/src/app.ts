@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db'
 import authRoutes from './routes/authRoutes';
 import { errorHandler } from './middlewares/errormiddleware';
+import productRoutes from './routes/productRoutes';
 
 dotenv.config();
 connectDB();
@@ -16,6 +17,7 @@ app.get('/', (req, resp) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
 
 app.use(errorHandler);
 

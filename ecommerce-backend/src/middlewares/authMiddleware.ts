@@ -3,10 +3,13 @@ import jwt from 'jsonwebtoken';
 
 
 export interface AuthRequest extends Request {
-    user?: any
+    user?: {
+        id: string;
+        role?: string
+    }
 }
 
-export const authMiddleware = (
+export const protect = (
     req: AuthRequest,
     resp: Response,
     next: NextFunction
@@ -24,7 +27,10 @@ export const authMiddleware = (
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        const decoded = jwt.verify(
+            token, 
+            process.env.JWT_SECRET as string
+        ) as {id: string; role: string};
         req.user = decoded;
         next();
     } catch(err) {
