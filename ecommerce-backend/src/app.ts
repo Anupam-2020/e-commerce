@@ -6,12 +6,14 @@ import { errorHandler } from './middlewares/errormiddleware';
 import productRoutes from './routes/productRoutes';
 import cartRoutes from './routes/cartRoutes';
 import orderRoutes from './routes/orderRoutes';
+import cors from 'cors';
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, resp) => {

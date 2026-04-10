@@ -5,6 +5,27 @@ import * as orderRepo from '../repositories/orderRepository';
 import * as cartRepo from "../repositories/cartRepository";
 import { Order } from "../models/Order";
 
+
+export const getOrders = async (userId: string) => {
+    return orderRepo.getOrderByuser(userId);
+};
+
+
+export const getOrderById = async (orderId: string) => {
+    const order = await orderRepo.getorderById(orderId);
+    if (!order) throw new Error("Order not found");
+    return order;
+};
+
+
+export const updateOrderStatus = async (
+    orderId: string,
+    status: string
+) => {
+    return orderRepo.updatePaymentWithRetry(orderId, { status });
+};
+
+
 export const placeOrder = async(userId: string, idempotencyKey: string) => {
     // check if order is already processed.
     const existingOrder = await Order.findOne({ idempotencyKey });
@@ -64,15 +85,15 @@ export const placeOrder = async(userId: string, idempotencyKey: string) => {
         }
 
         const order = await orderRepo.createorder(
-            [{
+            {
                 user: userId,
                 items: cart.items,
                 totalAmount,
                 status: "pending",
                 paymentStatus: "pending",
                 idempotencyKey
-            }],
-            {session}
+            },
+            session
         );
 
         await cartRepo.clearCart(userId, session);
@@ -86,4 +107,19 @@ export const placeOrder = async(userId: string, idempotencyKey: string) => {
         session.endSession();
         throw error;
     }
+};
+
+
+export const cancelOrder = async (orderId: string) => {
+    const order = await orderRepo.getorderById(orderId);
+
+    if (!order) throw new Error("Order not found");
+
+    if (order.status === "shipped" || order.status === "delivered") {
+        throw new Error("Cannot cancel this order");
+    }
+
+    return orderRepo.updatePaymentWithRetry(orderId, {
+        status: "cancelled"
+    });
 };
