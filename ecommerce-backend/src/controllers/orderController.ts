@@ -1,13 +1,34 @@
 import { Response } from "express";
 import { AuthRequest } from "../middlewares/authMiddleware";
 import * as orderService from '../services/orderService';
+import * as paymentService from '../services/paymentService';
 
 export const placeOrder = async (req: AuthRequest, resp: Response) => {
     try {
-        const order = await orderService.placeOrder(req.user!.id);
+        const idempotencyKey = req.headers['x-idempotency-key'] as string;
+
+        if(!idempotencyKey) {
+            return resp.status(400).json({
+                message: "Idempotency key required"
+            });
+        }
+
+        const order = await orderService.placeOrder(req.user!.id, idempotencyKey);
     } catch(error: any) {
         resp.status(400).json({
             message: error.message
         })
     }
 }
+
+
+export const processPayment = async(req: AuthRequest, resp: Response) => {
+    try {
+        const order = await paymentService.processPayment(req.params.id as string);
+        resp.json(order);
+    } catch(error: any) {
+        resp.status(400).json({
+            message: error.message
+        });
+    }
+};

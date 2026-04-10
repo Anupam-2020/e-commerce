@@ -6,6 +6,8 @@ export interface IOrder extends Document {
     items: any[];
     totalAmount: number;
     status: string;
+    paymentStatus: string;
+    idempotencyKey: string;
 }
 
 const orderSchema = new Schema<IOrder>({
@@ -19,6 +21,15 @@ const orderSchema = new Schema<IOrder>({
         type: String,
         enum: ["pending", "paid", "shipped", "delivered"],
         default: "pending" 
+    },
+    paymentStatus: {
+        type: String,
+        enum: ["pending", "success", "failed"],
+        default: "pending"
+    },
+    idempotencyKey: {
+        type: String,
+        unique: true
     }
 }, { timestamps: true });
 
