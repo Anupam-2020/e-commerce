@@ -8,6 +8,9 @@ export interface IOrder extends Document {
     status: string;
     paymentStatus: string;
     idempotencyKey: string;
+    retryCount: number;
+    maxRetries: number;
+    lastRetyAt?: Date;
 }
 
 const orderSchema = new Schema<IOrder>({
@@ -30,6 +33,17 @@ const orderSchema = new Schema<IOrder>({
     idempotencyKey: {
         type: String,
         unique: true
+    },
+    retryCount: {
+        type: Number,
+        default: 0
+    },
+    maxRetries: {
+        type: Number,
+        default: 3
+    },
+    lastRetyAt: {
+        type: Date
     }
 }, { timestamps: true });
 
